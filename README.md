@@ -1,1 +1,1 @@
-# td-idf-cosine-similarity
+# info-retrieval using cosine-similarity
