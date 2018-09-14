@@ -15,7 +15,7 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import PorterStemmer
 from nltk.stem import WordNetLemmatizer
 
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
@@ -47,7 +47,7 @@ query = input('Enter a query: ')
 #seperate large text file into documents with an article each
 def split_corpus(articleList):
     for article in articleList:                
-        seqInfoFile = open( '%s.txt' % re.sub(r'\W+', '',article[0:19]), 'w')
+        seqInfoFile = open( '../%s.txt' % re.sub(r'\W+', '',article[0:19]), 'w')
         seqInfoFile.write(str(article))
 
 
@@ -64,19 +64,19 @@ def process_articles(articleList):
 
     
 def main():
-    inputText = open("train.txt")
+    inputText = open("../train-v2.0.txt")
     inputContent = unidecode(inputText.read())
     inputContent += '\n'+ query
     articleList = inputContent.split("\n\n")
-    split_corpus(articleList)
+    #split_corpus(articleList)
     process_articles(articleList)
 
     #make tfidf
-    tfidf_vectorizer = TfidfVectorizer(stop_words=stopWords)
-    tfidf_matrix_train = tfidf_vectorizer.fit_transform(articleList)
+    count_vectorizer = CountVectorizer(stop_words=stopWords)
+    cv_matrix_train = count_vectorizer.fit_transform(articleList)
     
     #make cosine similarity
-    cs_matrix = cosine_similarity(tfidf_matrix_train, tfidf_matrix_train)
+    cs_matrix = cosine_similarity(cv_matrix_train, cv_matrix_train)
     cs_matrix[cs_matrix >= 1] = 0
     searchindex = np.where(cs_matrix==np.max(cs_matrix[-1]))
     articleindex = searchindex[-1][1]
