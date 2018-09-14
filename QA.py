@@ -5,6 +5,7 @@ Created on Sat Sep  1 08:17:26 2018
 
 @author: Rafael
 """
+
 import re
 
 from unidecode import unidecode
@@ -38,26 +39,19 @@ def lemmatize_tokens(tokens, wnl):
     for item in tokens:
         lemmatized.append(wnl.lemmatize(item))
     return lemmatized
-
 wnl = WordNetLemmatizer()
 
 
 query = input('Enter a query: ')
-
-inputText = open("train.txt")
-inputContent = unidecode(inputText.read())
-inputContent += '\n'+ query
-articleList = inputContent.split("\n\n")
 
 #seperate large text file into documents with an article each
 def split_corpus(articleList):
     for article in articleList:                
         seqInfoFile = open( '%s.txt' % re.sub(r'\W+', '',article[0:19]), 'w')
         seqInfoFile.write(str(article))
-        
+
 
 #go back to articles and clean it
-
 tokensList = []
 def process_articles(articleList):
     for index, articleList in enumerate(articleList):
@@ -68,14 +62,27 @@ def process_articles(articleList):
         tokensList[index] = [w for w in tokens if not w in stopWords]
         tokensList[index] = [c for c in tokens if c not in punctuation]
 
-tfidf_vectorizer = TfidfVectorizer(stop_words=stopWords)
-tfidf_matrix_train = tfidf_vectorizer.fit_transform(articleList)
+    
+def main():
+    inputText = open("train.txt")
+    inputContent = unidecode(inputText.read())
+    inputContent += '\n'+ query
+    articleList = inputContent.split("\n\n")
+    split_corpus(articleList)
+    process_articles(articleList)
 
-cs_matrix = cosine_similarity(tfidf_matrix_train, tfidf_matrix_train)
-cs_matrix[cs_matrix >= 1] = 0
-searchindex = np.where(cs_matrix==np.max(cs_matrix[-1]))
-articleindex = searchindex[-1][1]
-print(articleList[articleindex])
-print(cs_matrix)
-print(np.max(cs_matrix[-1]))
-
+    #make tfidf
+    tfidf_vectorizer = TfidfVectorizer(stop_words=stopWords)
+    tfidf_matrix_train = tfidf_vectorizer.fit_transform(articleList)
+    
+    #make cosine similarity
+    cs_matrix = cosine_similarity(tfidf_matrix_train, tfidf_matrix_train)
+    cs_matrix[cs_matrix >= 1] = 0
+    searchindex = np.where(cs_matrix==np.max(cs_matrix[-1]))
+    articleindex = searchindex[-1][1]
+    
+    #get most similar article
+    cs_matrix[cs_matrix ==1] = 0
+    print(np.max(cs_matrix))
+    print(articleList[articleindex])
+main()
