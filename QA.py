@@ -18,11 +18,10 @@ from nltk.stem import WordNetLemmatizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+import time
 
-# IMPORTANT MUST USE IMPORTANT MUST USE IMPORTANT MUST USE IMPORTANT MUST USE IMPORTANT MUST USE IMPORTANT MUST USE 
-#scilearn-kit count vectorizer
-#fit_transformer()
-#squeeze()
+#start run time
+start = time.time()
 
 
 stopWords = stopwords.words('english')
@@ -71,11 +70,11 @@ def main():
     #split_corpus(articleList)
     process_articles(articleList)
 
-    #make tfidf
+    #make list of counts
     count_vectorizer = CountVectorizer(stop_words=stopWords)
     cv_matrix_train = count_vectorizer.fit_transform(articleList)
     
-    #make cosine similarity
+    #make cosine similarity matrix
     cs_matrix = cosine_similarity(cv_matrix_train, cv_matrix_train)
     cs_matrix[cs_matrix >= 1] = 0
     searchindex = np.where(cs_matrix==np.max(cs_matrix[-1]))
@@ -83,6 +82,9 @@ def main():
     
     #get most similar article
     cs_matrix[cs_matrix ==1] = 0
+    print(str(cs_matrix))
     print(np.max(cs_matrix))
     print(articleList[articleindex])
 main()
+end = time.time()
+print(end - start)
